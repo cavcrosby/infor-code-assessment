@@ -3,6 +3,7 @@
 1. How to run the application.
 
 ```shell
+go mod download
 go run ./main.go
 ```
 
