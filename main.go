@@ -199,37 +199,33 @@ func getUsers(c *gin.Context) {
 		if k == "page" {
 			paginationPage = v[0]
 		} else if k == "per" {
-			paginationPerI, err := strconv.Atoi(v[0])
+			paginationPer = v[0]
+		}
+	}
+
+	var paginationPageI, paginationPerI int
+	var offsetPagPageI int = 0
+	var err error
+	if paginationPage != "" && paginationPer != "" {
+		paginationPageI, err = strconv.Atoi(paginationPage)
 			if err != nil {
 				return
 			}
 
-			if paginationPerI+1 > pageMaxLimit {
-				paginationPerI = 1
-				paginationPageI, err := strconv.Atoi(paginationPage)
+		paginationPerI, err = strconv.Atoi(paginationPer)
 				if err != nil {
 					return
 				}
 
-				paginationPage = strconv.Itoa(paginationPageI + 1)
-				paginationPer = strconv.Itoa(paginationPerI)
-			} else {
-				paginationPer = strconv.Itoa(paginationPerI)
-			}
-		}
-	}
-
-	var paginationPageI int
-	var err error
-	if paginationPage != "" {
-		paginationPageI, err = strconv.Atoi(paginationPage)
-		if err != nil {
-			return
+		// Without this patch, when pages > 0, the last result is included each time.
+		// Which is something I do not want.
+		if paginationPage != "0" {
+			offsetPagPageI += 1
 		}
 	}
 
 	if paginationPage != "" && paginationPer != "" {
-		rows, err := retrieveData(fmt.Sprintf("SELECT * FROM %v WHERE id >= %v LIMIT '%v'", tableName, (paginationPageI*10 + 1), paginationPer))
+		rows, err := retrieveData(fmt.Sprintf("SELECT * FROM %v WHERE id >= %v LIMIT '%v'", tableName, (paginationPageI*paginationPerI + offsetPagPageI), paginationPerI))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -247,7 +243,7 @@ func getUsers(c *gin.Context) {
 
 		pagiRes := paginationResponse{
 			ApiUrl:  apiUrl,
-			Next:    fmt.Sprintf(apiUrl+"/users/?page=%v&per=%v", paginationPage, paginationPerINext+1),
+			Next:    fmt.Sprintf(apiUrl+"/users/?page=%v&per=%v", paginationPageI+1, paginationPerINext),
 			Results: usersFromDb,
 		}
 
