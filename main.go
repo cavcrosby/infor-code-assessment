@@ -175,13 +175,13 @@ func getUserByID(c *gin.Context) {
 
 	row, err := retrieveData(fmt.Sprintf("SELECT * FROM %v WHERE id = %v", tableName, id))
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 
 	var usersFromDb []user
 	usersFromDb, err = sqliteUnMarshall(row, usersFromDb)
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 
 	if usersFromDb != nil {
@@ -239,26 +239,26 @@ func getUsers(c *gin.Context) {
 				var orderByQuery string = fmt.Sprintf("SELECT * FROM (%v) ORDER BY %v", limitQuery, paginationSort)
 				rows, err = retrieveData(orderByQuery)
 				if err != nil {
-					log.Fatal(err)
+					return
 				}
 			} else if paginationOrder == paginationOrderDesc {
 				var orderByQuery string = fmt.Sprintf("SELECT * FROM (%v) ORDER BY %v DESC", limitQuery, paginationSort)
 				rows, err = retrieveData(orderByQuery)
 				if err != nil {
-					log.Fatal(err)
+					return
 				}
 			}
 		} else {
 			rows, err = retrieveData(fmt.Sprintf("SELECT * FROM %v WHERE id >= %v LIMIT '%v'", tableName, (paginationPageI*paginationPerI + offsetPagPageI), paginationPerI))
 			if err != nil {
-				log.Fatal(err)
+				return
 			}
 		}
 
 		var usersFromDb []user
 		usersFromDb, err = sqliteUnMarshall(rows, usersFromDb)
 		if err != nil {
-			log.Fatal(err)
+			return
 		}
 
 		paginationPerINext, err := strconv.Atoi(paginationPer)
@@ -285,13 +285,13 @@ func getUsers(c *gin.Context) {
 	} else {
 		rows, err := retrieveData(fmt.Sprintf("SELECT * FROM %v", tableName))
 		if err != nil {
-			log.Fatal(err)
+			return
 		}
 
 		var usersFromDb []user
 		usersFromDb, err = sqliteUnMarshall(rows, usersFromDb)
 		if err != nil {
-			log.Fatal(err)
+			return
 		}
 
 		c.IndentedJSON(http.StatusOK, usersFromDb)
