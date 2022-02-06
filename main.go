@@ -16,10 +16,12 @@ import (
 )
 
 const (
-	apiUrl       = "localhost:8080"
-	dbFilePath   = "infor.db"
-	pageMaxLimit = 10
-	tableName    = "table1"
+	apiUrl              = "localhost:8080"
+	dbFilePath          = "infor.db"
+	pageMaxLimit        = 10
+	paginationOrderAsc  = "asc"
+	paginationOrderDesc = "desc"
+	tableName           = "table1"
 )
 
 type paginationResponse struct {
@@ -193,13 +195,16 @@ func getUserByID(c *gin.Context) {
 
 // Respond with the list of all users as JSON.
 func getUsers(c *gin.Context) {
-	var paginationPage string
-	var paginationPer string
+	var paginationPage, paginationPer, paginationSort, paginationOrder string
 	for k, v := range c.Request.URL.Query() {
 		if k == "page" {
 			paginationPage = v[0]
 		} else if k == "per" {
 			paginationPer = v[0]
+		} else if k == "sort" {
+			paginationSort = v[0]
+		} else if k == "order" {
+			paginationOrder = v[0]
 		}
 	}
 
@@ -208,14 +213,14 @@ func getUsers(c *gin.Context) {
 	var err error
 	if paginationPage != "" && paginationPer != "" {
 		paginationPageI, err = strconv.Atoi(paginationPage)
-			if err != nil {
-				return
-			}
+		if err != nil {
+			return
+		}
 
 		paginationPerI, err = strconv.Atoi(paginationPer)
-				if err != nil {
-					return
-				}
+		if err != nil {
+			return
+		}
 
 		// Without this patch, when pages > 0, the last result is included each time.
 		// Which is something I do not want.
@@ -225,9 +230,31 @@ func getUsers(c *gin.Context) {
 	}
 
 	if paginationPage != "" && paginationPer != "" {
-		rows, err := retrieveData(fmt.Sprintf("SELECT * FROM %v WHERE id >= %v LIMIT '%v'", tableName, (paginationPageI*paginationPerI + offsetPagPageI), paginationPerI))
-		if err != nil {
-			log.Fatal(err)
+		var rows *sql.Rows
+		if paginationSort != "" && paginationOrder != "" {
+			if paginationOrder != paginationOrderAsc && paginationOrder != paginationOrderDesc {
+				paginationOrder = paginationOrderAsc
+			}
+
+			var limitQuery string = fmt.Sprintf("SELECT * FROM %v WHERE id >= %v LIMIT '%v'", tableName, (paginationPageI*paginationPerI + offsetPagPageI), paginationPerI)
+			if paginationOrder == paginationOrderAsc {
+				var orderByQuery string = fmt.Sprintf("SELECT * FROM (%v) ORDER BY %v", limitQuery, paginationSort)
+				rows, err = retrieveData(orderByQuery)
+				if err != nil {
+					log.Fatal(err)
+				}
+			} else if paginationOrder == paginationOrderDesc {
+				var orderByQuery string = fmt.Sprintf("SELECT * FROM (%v) ORDER BY %v DESC", limitQuery, paginationSort)
+				rows, err = retrieveData(orderByQuery)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+		} else {
+			rows, err = retrieveData(fmt.Sprintf("SELECT * FROM %v WHERE id >= %v LIMIT '%v'", tableName, (paginationPageI*paginationPerI + offsetPagPageI), paginationPerI))
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 
 		var usersFromDb []user
@@ -241,11 +268,20 @@ func getUsers(c *gin.Context) {
 			return
 		}
 
-		pagiRes := paginationResponse{
-			ApiUrl:  apiUrl,
-			Next:    fmt.Sprintf(apiUrl+"/users/?page=%v&per=%v", paginationPageI+1, paginationPerINext),
-			Results: usersFromDb,
-		}
+		var pagiRes paginationResponse
+		if paginationSort != "" && paginationOrder != "" {
+			pagiRes = paginationResponse{
+				ApiUrl:  apiUrl,
+				Next:    fmt.Sprintf(apiUrl+"/users/?page=%v&per=%v&sort=%v&order=%v", paginationPageI+1, paginationPerINext, paginationSort, paginationOrder),
+				Results: usersFromDb,
+			}
+		} else {
+			pagiRes = paginationResponse{
+				ApiUrl:  apiUrl,
+				Next:    fmt.Sprintf(apiUrl+"/users/?page=%v&per=%v", paginationPageI+1, paginationPerINext),
+				Results: usersFromDb,
+			}
+		}	
 
 		c.IndentedJSON(http.StatusOK, pagiRes)
 	} else {

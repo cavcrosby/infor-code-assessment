@@ -31,11 +31,14 @@ curl --request DELETE localhost:8080/users/11
 # curl examples to demonstrate pagination
 curl 'localhost:8080/users?page=0&per=5'
 curl 'localhost:8080/users?page=1&per=5'
+
+# curl example for pagination with sort/order
+curl 'localhost:8080/users?page=0&per=5&sort=id&order=desc'
 ```
 
 3. Approximately how much time you spent on the application.
 
-**I have spent approximately 4 hours on this application.**
+**I have spent approximately 4 hours and 31 minutes on this application.**
 
 4. Any tradeoffs you made during development of the application.
 
