@@ -234,15 +234,16 @@ func getUsers(c *gin.Context) {
 				paginationOrder = paginationOrderAsc
 			}
 
-			var limitQuery string = fmt.Sprintf("SELECT * FROM %v WHERE id >= %v LIMIT '%v'", tableName, (paginationPageI*paginationPerI + offsetPagPageI), paginationPerI)
 			if paginationOrder == paginationOrderAsc {
-				var orderByQuery string = fmt.Sprintf("SELECT * FROM (%v) ORDER BY %v", limitQuery, paginationSort)
+				// The subquery is needed to enforce ORDER BY on the "n" of rows I want from LIMIT.
+				// Otherwise, ORDER BY will run first, which is not the intended effect.
+				var orderByQuery string = fmt.Sprintf("SELECT * FROM (SELECT * FROM %v WHERE id >= %v LIMIT %v) ORDER BY %v ASC LIMIT '%v'", tableName, (paginationPageI*paginationPerI + offsetPagPageI), paginationPerI, paginationSort, paginationPerI)
 				rows, err = retrieveData(orderByQuery)
 				if err != nil {
 					return
 				}
 			} else if paginationOrder == paginationOrderDesc {
-				var orderByQuery string = fmt.Sprintf("SELECT * FROM (%v) ORDER BY %v DESC", limitQuery, paginationSort)
+				var orderByQuery string = fmt.Sprintf("SELECT * FROM (SELECT * FROM %v WHERE id >= %v LIMIT %v) ORDER BY %v DESC LIMIT '%v'", tableName, (paginationPageI*paginationPerI + offsetPagPageI), paginationPerI, paginationSort, paginationPerI)
 				rows, err = retrieveData(orderByQuery)
 				if err != nil {
 					return
