@@ -191,7 +191,7 @@ func getUserByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "user not found"})
 }
 
-// Respond with the list of all users as JSON.
+// Respond with the list of users as JSON.
 func getUsers(c *gin.Context) {
 	var paginationPage, paginationPer, paginationSort, paginationOrder string
 	for k, v := range c.Request.URL.Query() {
@@ -308,7 +308,6 @@ func main() {
 	defer dbConnector.Close()
 
 	if _, err := os.Stat(dbFilePath); errors.Is(err, fs.ErrNotExist) {
-
 		_, err = dbConnector.Exec(initSqlTableStmt)
 		if err != nil {
 			log.Panic(err)
