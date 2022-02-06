@@ -18,7 +18,6 @@ import (
 const (
 	apiUrl              = "localhost:8080"
 	dbFilePath          = "infor.db"
-	pageMaxLimit        = 10
 	paginationOrderAsc  = "asc"
 	paginationOrderDesc = "desc"
 	tableName           = "table1"
