@@ -10,7 +10,7 @@ go run ./main.go
 2. An example cURL command to create a User record via the app’s JSON API.
 
 ```shell
-curl --request POST localhost:8080/users --header 'Content-Type: application/json' --data '{"id":11, "email":"f@gmail.com", "first_name": "foo", "last_name": "foo"}'
+curl --request POST localhost:8080/users --header 'Content-Type: application/json' --data '{"id":11, "email":"user@gmail.com", "first_name": "user", "last_name": "user"}'
 ```
 
 ```shell
@@ -25,7 +25,7 @@ curl localhost:8080/users/2
 curl localhost:8080/users/12
 
 # curl examples to update a user, and delete a user
-curl --request POST localhost:8080/users/11 --header 'Content-Type: application/json' --data '{"email":"d@gmail.com", "first_name": "foo", "last_name": "foo"}'
+curl --request POST localhost:8080/users/11 --header 'Content-Type: application/json' --data '{"email":"updated_user@gmail.com", "first_name": "user", "last_name": "user"}'
 curl --request DELETE localhost:8080/users/11
 
 # curl examples to demonstrate pagination
