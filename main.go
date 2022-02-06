@@ -156,7 +156,7 @@ func createUser(c *gin.Context) {
 
 	if err := updateData(
 		fmt.Sprintf(
-			"INSERT INTO %v(id, email, first_name, last_name) values(%v, '%v', '%v', '%v')",
+			"INSERT INTO %v(id, email, first_name, last_name) VALUES(%v, '%v', '%v', '%v')",
 			tableName,
 			newUser.ID,
 			newUser.Email,
@@ -318,7 +318,7 @@ func main() {
 		for _, u := range initUsers {
 			_, err = dbConnector.Exec(
 				fmt.Sprintf(
-					"INSERT INTO %v(id, email, first_name, last_name) values('%v', '%v', '%v', '%v')",
+					"INSERT INTO %v(id, email, first_name, last_name) VALUES('%v', '%v', '%v', '%v')",
 					tableName,
 					u.ID,
 					u.Email,
