@@ -150,8 +150,6 @@ func updateUser(c *gin.Context) {
 func createUser(c *gin.Context) {
 	var newUser user
 
-	// Call BindJSON to bind the received JSON to
-	// newUser.
 	if err := c.BindJSON(&newUser); err != nil {
 		return
 	}
