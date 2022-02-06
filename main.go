@@ -96,7 +96,7 @@ func sqliteUnMarshall(rows *sql.Rows, usersFromDb []user) ([]user, error) {
 	return usersFromDb, nil
 }
 
-// Add a user from JSON received in the request body.
+// Delete a user based on the ID from the URL.
 func deleteUser(c *gin.Context) {
 	id := c.Param("id")
 
@@ -113,7 +113,7 @@ func deleteUser(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "OK"})
 }
 
-// Add a user from JSON received in the request body.
+// Update a user from JSON received in the request body.
 func updateUser(c *gin.Context) {
 	var updateUser user
 	id := c.Param("id")
@@ -170,6 +170,7 @@ func createUser(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newUser)
 }
 
+// Get a user based on the ID from the URL.
 func getUserByID(c *gin.Context) {
 	id := c.Param("id")
 
@@ -298,6 +299,7 @@ func getUsers(c *gin.Context) {
 	}
 }
 
+// Start the main program execution.
 func main() {
 	var err error
 	dbConnector, err = sql.Open("sqlite3", dbFilePath)
