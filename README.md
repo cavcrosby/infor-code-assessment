@@ -21,7 +21,7 @@ curl localhost:8080/users/1
 curl localhost:8080/users/2
 
 # invalid user (well, at least with only the initial populated database and
-# newly created user "12")
+# newly created user "11")
 curl localhost:8080/users/12
 
 # curl examples to update a user, and delete a user
